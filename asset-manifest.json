@@ -1,14 +1,12 @@
 {
   "files": {
     "main.css": "/my-portfolio/static/css/main.6b8edc51.css",
-    "main.js": "/my-portfolio/static/js/main.6b8f029d.js",
-    "static/media/realestate.jpg": "/my-portfolio/static/media/realestate.44fd19f4c6872731149c.jpg",
+    "main.js": "/my-portfolio/static/js/main.b0e4e03a.js",
     "static/media/postgre.png": "/my-portfolio/static/media/postgre.4a8c66c90ba3b5e27f7c.png",
     "static/media/vmware.png": "/my-portfolio/static/media/vmware.893d9e31743f5775be58.png",
     "static/media/redhat.png": "/my-portfolio/static/media/redhat.bca49d64c4ebf51367a0.png",
     "static/media/terraform.png": "/my-portfolio/static/media/terraform.06d226ce2454d89e1d78.png",
     "static/media/logo.png": "/my-portfolio/static/media/logo.7e30ae36ee414e735dcd.png",
-    "static/media/workImg.jpeg": "/my-portfolio/static/media/workImg.e4c66be6ae2ae4f83608.jpeg",
     "static/media/azure.png": "/my-portfolio/static/media/azure.26d2f2a3a6df25838026.png",
     "static/media/ansible.png": "/my-portfolio/static/media/ansible.e67bf07a94e5c2b7744b.png",
     "static/media/github.png": "/my-portfolio/static/media/github.3b9e32903aa89111875d.png",
@@ -18,10 +16,10 @@
     "static/media/javascript.png": "/my-portfolio/static/media/javascript.1ccd6ef9bb1f9c84ef00.png",
     "index.html": "/my-portfolio/index.html",
     "main.6b8edc51.css.map": "/my-portfolio/static/css/main.6b8edc51.css.map",
-    "main.6b8f029d.js.map": "/my-portfolio/static/js/main.6b8f029d.js.map"
+    "main.b0e4e03a.js.map": "/my-portfolio/static/js/main.b0e4e03a.js.map"
   },
   "entrypoints": [
     "static/css/main.6b8edc51.css",
-    "static/js/main.6b8f029d.js"
+    "static/js/main.b0e4e03a.js"
   ]
 }
