@@ -1,124 +1,116 @@
-/* eslint-disable jsx-a11y/img-redundant-alt */
-import React, { useState } from 'react';
-import {
-  FaBars,
-  FaTimes,
-  FaGithub,
-  FaLinkedin,
-} from 'react-icons/fa';
-// import { HiOutlineMail } from 'react-icons/hi';
-import { BsFillPersonLinesFill } from 'react-icons/bs';
-import Logo from '../assets/logo.png';
+import React, { useEffect, useState } from 'react';
+import { FaBars, FaTimes, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { Link } from 'react-scroll';
+import Logo from '../assets/logo.png';
+import { profile } from '../data/profile';
+import ThemeToggle from './ThemeToggle';
+
+const links = [
+  { to: 'about', label: 'About' },
+  { to: 'skills', label: 'Skills' },
+  { to: 'contact', label: 'Contact' },
+];
+
+const scrollProps = { smooth: true, duration: 500, offset: -72 };
 
 const Navbar = () => {
-  const [nav, setNav] = useState(false);
-  const handleClick = () => setNav(!nav);
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Stop the page behind the mobile menu from scrolling.
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+  }, [open]);
+
+  const close = () => setOpen(false);
 
   return (
-    <div className='fixed w-full h-[80px] flex justify-between items-center px-4 bg-[#081324] text-gray-300'>
-      <div>
-        <img src={Logo} alt='Logo Image' style={{ width: '130px' }} />
-      </div>
+    <header
+      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+        open
+          ? 'bg-page'
+          : scrolled
+          ? 'border-b border-line/70 bg-page/85 backdrop-blur'
+          : 'bg-transparent'
+      }`}
+    >
+      <nav className='mx-auto flex h-[72px] max-w-5xl items-center justify-between px-6'>
+        <Link to='home' {...scrollProps} href='#home' onClick={close} className='cursor-pointer'>
+          <img src={Logo} alt={profile.name} className='h-12 w-auto' />
+        </Link>
 
-      {/* menu */}
-      <ul className='hidden md:flex'>
-        <li>
-          <Link to='home' smooth={true} duration={500}>
-            Home
-          </Link>
-        </li>
-        <li>
-          <Link to='about' smooth={true} duration={500}>
-            About
-          </Link>
-        </li>
-        <li>
-          <Link to='skills' smooth={true} duration={500}>
-            Skills
-          </Link>
-        </li>
-        <li>
-          <Link to='contact' smooth={true} duration={500}>
-            Contact
-          </Link>
-        </li>
-      </ul>
+        <div className='flex items-center gap-2 md:gap-6'>
+          <ul className='hidden items-center gap-8 md:flex'>
+            {links.map(({ to, label }, i) => (
+              <li key={to}>
+                <Link
+                  to={to}
+                  href={`#${to}`}
+                  spy
+                  activeClass='!text-accent'
+                  {...scrollProps}
+                  className='cursor-pointer text-sm text-ink-muted transition-colors hover:text-accent'
+                >
+                  <span className='font-mono text-accent'>0{i + 1}.</span> {label}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-outline py-2'>
+                Resume
+              </a>
+            </li>
+          </ul>
 
-      {/* Hamburger */}
-      <div onClick={handleClick} className='md:hidden z-10'>
-        {!nav ? <FaBars /> : <FaTimes />}
-      </div>
+          <ThemeToggle />
 
-      {/* Mobile menu */}
-      <ul
-        className={
-          !nav
-            ? 'hidden'
-            : 'absolute top-0 left-0 w-full h-screen bg-[#081324] flex flex-col justify-center items-center'
-        }
-      >
-        <li className='py-6 text-4xl'>
-          <Link onClick={handleClick} to='home' smooth={true} duration={500}>
-            Home
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='about' smooth={true} duration={500}>
-            About
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='skills' smooth={true} duration={500}>
-            Skills
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='work' smooth={true} duration={500}>
-            Work
-          </Link>
-        </li>
-        <li className='py-6 text-4xl'>
-          {' '}
-          <Link onClick={handleClick} to='contact' smooth={true} duration={500}>
-            Contact
-          </Link>
-        </li>
-      </ul>
+          <button
+            type='button'
+            onClick={() => setOpen(!open)}
+            className='rounded p-2 text-xl text-ink md:hidden'
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+          >
+            {open ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
+      </nav>
 
-      {/* Social icons */}
-      <div className='hidden lg:flex fixed flex-col top-[35%] left-0'>
-        <ul>
-          <li className='w-[160px] h-[60px] flex justify-between items-center ml-[-100px] hover:ml-[-10px] duration-300 bg-blue-600'>
-            <a
-              className='flex justify-between items-center w-full text-gray-300'
-              href='https://www.linkedin.com/in/jayllan-abecia-907b3119a/'
+      {open && (
+        <div className='flex h-[calc(100vh-72px)] flex-col items-center justify-center gap-8 bg-page md:hidden'>
+          {links.map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              href={`#${to}`}
+              {...scrollProps}
+              onClick={close}
+              className='cursor-pointer text-3xl font-semibold text-ink hover:text-accent'
             >
-              Linkedin <FaLinkedin size={30} />
+              {label}
+            </Link>
+          ))}
+          <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-outline'>
+            Resume
+          </a>
+          <div className='flex gap-6 text-2xl text-ink-muted'>
+            <a href={profile.linkedin} target='_blank' rel='noreferrer' aria-label='LinkedIn' className='hover:text-accent'>
+              <FaLinkedin />
             </a>
-          </li>
-          <li className='w-[160px] h-[60px] flex justify-between items-center ml-[-100px] hover:ml-[-10px] duration-300 bg-[#333333]'>
-            <a
-              className='flex justify-between items-center w-full text-gray-300'
-              href='https://github.com/abeciaj'
-            >
-              Github <FaGithub size={30} />
+            <a href={profile.github} target='_blank' rel='noreferrer' aria-label='GitHub' className='hover:text-accent'>
+              <FaGithub />
             </a>
-          </li>
-          <li className='w-[160px] h-[60px] flex justify-between items-center ml-[-100px] hover:ml-[-10px] duration-300 bg-[#565f69]'>
-            <a
-              className='flex justify-between items-center w-full text-gray-300'
-              href='https://drive.google.com/file/d/1WJtRq8jemTyuLzABbX4LF_IEISm5lQwa/view?usp=sharing'
-            >
-              Resume <BsFillPersonLinesFill size={30} />
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
+          </div>
+        </div>
+      )}
+    </header>
   );
 };
 
