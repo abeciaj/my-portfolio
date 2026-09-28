@@ -1,33 +1,34 @@
 import React from 'react';
+import { profile, services } from '../data/profile';
 
 const About = () => {
   return (
-    <div name='about' className='w-full h-screen bg-[#081324] text-gray-300'>
-      <div className='flex flex-col justify-center items-center w-full h-full'>
-        <div className='max-w-[1000px] w-full grid grid-cols-2 gap-8'>
-          <div className='sm:text-right pb-8 pl-4'>
-            <p className='text-4xl font-bold inline border-b-4 border-purple-300'>
-              About
-            </p>
-          </div>
-          <div></div>
-          </div>
-          <div className='max-w-[1000px] w-full grid sm:grid-cols-2 gap-8 px-4'>
-            <div className='sm:text-right text-4xl font-bold'>
-              <p>Hello I'm Jayllan Abecia, nice to meet you!</p>
-            </div>
-            <div>
-              <p>I am a passionate cloud engineer with a keen interest in staying
-               at the forefront of technology trends. When I'm not immersed in 
-               the world of cloud computing, you'll often find me engrossed in 
-               a good book. I thrive on exploring new technologies and discovering 
-               innovative solutions to challenges in the ever-evolving tech 
-               landscape. Let's navigate the digital realm together! 
-               🚀📚 #CloudEngineer #TechEnthusiast</p>  
-            </div>
-          </div>
+    <section id='about' className='section'>
+      <p className='section-label'>01. About</p>
+      <h2 className='section-title'>Hello, I'm {profile.firstName}. Nice to meet you!</h2>
+
+      <div className='mt-8 max-w-3xl space-y-4 text-lg leading-relaxed text-ink-muted'>
+        {profile.about.map((paragraph) => (
+          <p key={paragraph}>{paragraph}</p>
+        ))}
       </div>
-    </div>
+
+      <h3 className='mt-16 font-mono text-sm uppercase tracking-widest text-ink-muted'>
+        What I can help with
+      </h3>
+      <div className='mt-6 grid gap-5 sm:grid-cols-2'>
+        {services.map(({ icon: Icon, title, text }) => (
+          <div
+            key={title}
+            className='card p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/50'
+          >
+            <Icon className='text-2xl text-accent' aria-hidden='true' />
+            <h4 className='mt-4 text-lg font-semibold text-ink'>{title}</h4>
+            <p className='mt-2 leading-relaxed text-ink-muted'>{text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 
