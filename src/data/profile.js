@@ -1,16 +1,16 @@
 import {
   SiAmazonaws,
   SiAnsible,
-  SiCss3,
   SiDebian,
   SiGithub,
   SiGooglecloud,
-  SiHtml5,
   SiInformatica,
   SiJavascript,
   SiKubernetes,
   SiMicrosoftazure,
+  SiPhp,
   SiPostgresql,
+  SiPython,
   SiRedhat,
   SiTerraform,
   SiVmware,
@@ -101,9 +101,9 @@ export const skillGroups = [
   {
     title: 'Web',
     skills: [
-      { name: 'HTML', icon: SiHtml5, color: '#E34F26' },
-      { name: 'CSS', icon: SiCss3, color: '#1572B6' },
+      { name: 'PHP', icon: SiPhp, color: '#777BB4' },
       { name: 'JavaScript', icon: SiJavascript, color: '#F7DF1E' },
+      { name: 'Python', icon: SiPython, color: '#3776AB' },
     ],
   },
 ];
