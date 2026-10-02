@@ -1,7 +1,7 @@
 import React from 'react';
 import { HiArrowNarrowRight } from 'react-icons/hi';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { FiMail } from 'react-icons/fi';
+import { FiMail, FiMapPin } from 'react-icons/fi';
 import { Link } from 'react-scroll';
 import { profile } from '../data/profile';
 
@@ -62,6 +62,10 @@ const Home = () => {
           </h2>
           <p className='mt-6 max-w-xl text-lg leading-relaxed text-ink-muted'>
             {profile.tagline}
+          </p>
+          <p className='mt-4 flex items-center gap-2 font-mono text-sm text-ink-muted'>
+            <FiMapPin className='text-accent' aria-hidden='true' />
+            Based in {profile.location}
           </p>
 
           <div className='mt-10 flex flex-wrap gap-4'>

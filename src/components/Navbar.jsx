@@ -1,21 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { FaBars, FaTimes, FaGithub, FaLinkedin } from 'react-icons/fa';
-import { Link } from 'react-scroll';
+import { Link as ScrollLink } from 'react-scroll';
+import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
 import Logo from '../assets/logo.png';
 import { profile } from '../data/profile';
 import ThemeToggle from './ThemeToggle';
 
 const links = [
   { to: 'about', label: 'About' },
+  { to: 'experience', label: 'Experience' },
   { to: 'skills', label: 'Skills' },
   { to: 'contact', label: 'Contact' },
 ];
 
 const scrollProps = { smooth: true, duration: 500, offset: -72 };
 
+// Scrolls to a section on the home page; from any other page it
+// navigates home first and HomePage scrolls to the #hash.
+const SectionLink = ({ to, onHome, className = '', children, ...rest }) =>
+  onHome ? (
+    <ScrollLink to={to} href={`#${to}`} {...scrollProps} {...rest} className={`cursor-pointer ${className}`}>
+      {children}
+    </ScrollLink>
+  ) : (
+    <RouterLink to={`/#${to}`} onClick={rest.onClick} className={className}>
+      {children}
+    </RouterLink>
+  );
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const onHome = useLocation().pathname === '/';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -42,26 +58,35 @@ const Navbar = () => {
       }`}
     >
       <nav className='mx-auto flex h-[72px] max-w-5xl items-center justify-between px-6'>
-        <Link to='home' {...scrollProps} href='#home' onClick={close} className='cursor-pointer'>
+        <SectionLink to='home' onHome={onHome} onClick={close}>
           <img src={Logo} alt={profile.name} className='h-12 w-auto' />
-        </Link>
+        </SectionLink>
 
-        <div className='flex items-center gap-2 md:gap-6'>
-          <ul className='hidden items-center gap-8 md:flex'>
+        <div className='flex items-center gap-2 lg:gap-6'>
+          <ul className='hidden items-center gap-6 lg:flex'>
             {links.map(({ to, label }, i) => (
               <li key={to}>
-                <Link
+                <SectionLink
                   to={to}
-                  href={`#${to}`}
+                  onHome={onHome}
                   spy
                   activeClass='!text-accent'
-                  {...scrollProps}
-                  className='cursor-pointer text-sm text-ink-muted transition-colors hover:text-accent'
+                  className='text-sm text-ink-muted transition-colors hover:text-accent'
                 >
                   <span className='font-mono text-accent'>0{i + 1}.</span> {label}
-                </Link>
+                </SectionLink>
               </li>
             ))}
+            <li>
+              <NavLink
+                to='/blog'
+                className={({ isActive }) =>
+                  `text-sm transition-colors hover:text-accent ${isActive ? 'text-accent' : 'text-ink-muted'}`
+                }
+              >
+                <span className='font-mono text-accent'>0{links.length + 1}.</span> Blog
+              </NavLink>
+            </li>
             <li>
               <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-outline py-2'>
                 Resume
@@ -74,7 +99,7 @@ const Navbar = () => {
           <button
             type='button'
             onClick={() => setOpen(!open)}
-            className='rounded p-2 text-xl text-ink md:hidden'
+            className='rounded p-2 text-xl text-ink lg:hidden'
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
           >
@@ -84,19 +109,21 @@ const Navbar = () => {
       </nav>
 
       {open && (
-        <div className='flex h-[calc(100vh-72px)] flex-col items-center justify-center gap-8 bg-page md:hidden'>
+        <div className='flex h-[calc(100vh-72px)] flex-col items-center justify-center gap-6 bg-page lg:hidden'>
           {links.map(({ to, label }) => (
-            <Link
+            <SectionLink
               key={to}
               to={to}
-              href={`#${to}`}
-              {...scrollProps}
+              onHome={onHome}
               onClick={close}
-              className='cursor-pointer text-3xl font-semibold text-ink hover:text-accent'
+              className='text-3xl font-semibold text-ink hover:text-accent'
             >
               {label}
-            </Link>
+            </SectionLink>
           ))}
+          <RouterLink to='/blog' onClick={close} className='text-3xl font-semibold text-ink hover:text-accent'>
+            Blog
+          </RouterLink>
           <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-outline'>
             Resume
           </a>
