@@ -183,10 +183,9 @@ export const experience = [
   },
 ];
 
-// `years` is omitted where it isn't confirmed.
 export const education = [
   { degree: 'Master of Information Technology', school: 'Torrens University Australia', years: '2024 – 2025' },
-  { degree: 'Bachelor of Science in Information Technology', school: 'University of Southern Philippines' },
+  { degree: 'Bachelor of Science in Information Technology', school: 'University of Southern Philippines', years: '2014 – 2018' },
 ];
 
 const microsoft = { icon: SiMicrosoft, color: '#00A4EF', issuer: 'Microsoft' };
