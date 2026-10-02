@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { FiMail, FiSend } from 'react-icons/fi';
+import { FiMail, FiMapPin, FiSend } from 'react-icons/fi';
 import { profile } from '../data/profile';
 
 const Contact = () => {
@@ -27,7 +27,7 @@ const Contact = () => {
 
   return (
     <section id='contact' className='section'>
-      <p className='section-label'>03. Contact</p>
+      <p className='section-label'>04. Contact</p>
       <h2 className='section-title'>Let's build something together</h2>
 
       <div className='mt-12 grid gap-12 md:grid-cols-5'>
@@ -37,6 +37,10 @@ const Contact = () => {
             out directly. I'll get back to you as soon as I can.
           </p>
           <ul className='space-y-4'>
+            <li className='flex items-center gap-3 text-ink'>
+              <FiMapPin className='text-xl text-accent' aria-hidden='true' />
+              {profile.location}
+            </li>
             <li>
               <a href={`mailto:${profile.email}`} className='flex items-center gap-3 text-ink transition-colors hover:text-accent'>
                 <FiMail className='text-xl text-accent' aria-hidden='true' />

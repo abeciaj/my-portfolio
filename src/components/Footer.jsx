@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaGithub, FaLinkedin } from 'react-icons/fa';
 import { FiArrowUp, FiMail } from 'react-icons/fi';
-import { Link } from 'react-scroll';
 import { profile } from '../data/profile';
 
 const Footer = () => {
@@ -21,9 +20,13 @@ const Footer = () => {
           <a href={`mailto:${profile.email}`} aria-label='Email' className='hover:text-accent'>
             <FiMail />
           </a>
-          <Link to='home' href='#home' smooth duration={500} className='ml-2 flex cursor-pointer items-center gap-1 font-mono text-sm hover:text-accent'>
+          <button
+            type='button'
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className='ml-2 flex items-center gap-1 font-mono text-sm hover:text-accent'
+          >
             Back to top <FiArrowUp aria-hidden='true' />
-          </Link>
+          </button>
         </div>
       </div>
     </footer>

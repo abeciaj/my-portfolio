@@ -32,9 +32,6 @@
     --success: 74 222 128;
     --danger: 248 113 113;
   }
-  html {
-    scroll-behavior: smooth;
-  }
   body {
     @apply bg-page font-sans text-ink antialiased transition-colors duration-300;
   }
@@ -81,9 +78,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
