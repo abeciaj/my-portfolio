@@ -49,12 +49,9 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        open
-          ? 'bg-page'
-          : scrolled
-          ? 'border-b border-line/70 bg-page/85 backdrop-blur'
-          : 'bg-transparent'
+      // Transparent over the top of the page; solid once scrolled or when the menu is open.
+      className={`fixed inset-x-0 top-0 z-50 border-b transition duration-300 ${
+        scrolled || open ? 'border-line bg-surface shadow-lg shadow-black/5' : 'border-transparent bg-transparent'
       }`}
     >
       <nav className='mx-auto flex h-[72px] max-w-5xl items-center justify-between px-6'>
@@ -109,7 +106,7 @@ const Navbar = () => {
       </nav>
 
       {open && (
-        <div className='flex h-[calc(100vh-72px)] flex-col items-center justify-center gap-6 bg-page lg:hidden'>
+        <div className='flex h-[calc(100vh-72px)] flex-col items-center justify-center gap-6 bg-surface lg:hidden'>
           {links.map(({ to, label }) => (
             <SectionLink
               key={to}
