@@ -1,33 +1,34 @@
 import React from 'react';
-import { FaGithub, FaLinkedin } from 'react-icons/fa';
-import { FiArrowUp, FiMail } from 'react-icons/fi';
+import { FiGithub, FiLinkedin, FiMail } from 'react-icons/fi';
 import { profile } from '../data/profile';
+
+const socials = [
+  { icon: FiLinkedin, label: 'LinkedIn', href: profile.linkedin, external: true },
+  { icon: FiGithub, label: 'GitHub', href: profile.github, external: true },
+  { icon: FiMail, label: 'Email', href: `mailto:${profile.email}` },
+];
 
 const Footer = () => {
   return (
-    <footer className='border-t border-line bg-sunken'>
-      <div className='mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 px-6 py-8 sm:flex-row'>
+    <footer className='border-t border-line'>
+      <div className='container-page flex flex-col items-center justify-between gap-4 py-8 sm:flex-row'>
         <p className='text-sm text-ink-muted'>
           © {new Date().getFullYear()} {profile.name}
         </p>
-        <div className='flex items-center gap-5 text-lg text-ink-muted'>
-          <a href={profile.linkedin} target='_blank' rel='noreferrer' aria-label='LinkedIn' className='hover:text-accent'>
-            <FaLinkedin />
-          </a>
-          <a href={profile.github} target='_blank' rel='noreferrer' aria-label='GitHub' className='hover:text-accent'>
-            <FaGithub />
-          </a>
-          <a href={`mailto:${profile.email}`} aria-label='Email' className='hover:text-accent'>
-            <FiMail />
-          </a>
-          <button
-            type='button'
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className='ml-2 flex items-center gap-1 font-mono text-sm hover:text-accent'
-          >
-            Back to top <FiArrowUp aria-hidden='true' />
-          </button>
-        </div>
+        <ul className='flex items-center gap-1'>
+          {socials.map(({ icon: Icon, label, href, external }) => (
+            <li key={label}>
+              <a
+                href={href}
+                aria-label={label}
+                {...(external ? { target: '_blank', rel: 'noreferrer' } : {})}
+                className='flex rounded-full p-2 text-lg text-ink-muted transition-colors duration-200 hover:text-accent'
+              >
+                <Icon aria-hidden='true' />
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </footer>
   );

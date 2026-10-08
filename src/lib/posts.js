@@ -46,7 +46,7 @@ export const formatDate = (date) => {
   if (!date) return '';
   // Dates are plain YYYY-MM-DD; parse as local time so they don't shift a day.
   const [y, m, d] = date.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+  return new Date(y, m - 1, d).toLocaleDateString('en-AU', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

@@ -42,9 +42,9 @@ const ThemeToggle = ({ className = '' }) => {
       onClick={toggle}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`rounded-md p-2 text-lg text-ink-muted transition-colors hover:bg-accent/10 hover:text-accent ${className}`}
+      className={`rounded-full p-2 text-lg text-ink-muted transition-colors duration-200 hover:bg-accent/10 hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${className}`}
     >
-      {dark ? <FiSun /> : <FiMoon />}
+      {dark ? <FiSun aria-hidden='true' /> : <FiMoon aria-hidden='true' />}
     </button>
   );
 };

@@ -1,14 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HiArrowNarrowRight } from 'react-icons/hi';
+import { FiArrowRight } from 'react-icons/fi';
 import Tags from '../components/Tags';
 import { formatDate } from '../lib/posts';
 import { useDocumentTitle, usePosts } from '../lib/hooks';
 
-export const PostMeta = ({ post }) => (
+// `stacked` puts the reading time on its own line (used in the narrow date
+// column of the blog list).
+export const PostMeta = ({ post, stacked = false }) => (
   <p className='font-mono text-xs text-ink-muted'>
     <time dateTime={post.date}>{formatDate(post.date)}</time>
-    <span aria-hidden='true'> · </span>
+    {stacked ? <br /> : <span aria-hidden='true'> · </span>}
     {post.readingTime} min read
   </p>
 );
@@ -18,10 +20,9 @@ const BlogPage = () => {
   useDocumentTitle('Blog');
 
   return (
-    <section className='section pt-32 sm:pt-36'>
-      <p className='section-label'>Blog</p>
+    <section className='section pt-36 md:pt-40'>
       <h1 className='section-title'>Notes on cloud, DevOps and the web</h1>
-      <p className='mt-4 max-w-2xl text-lg text-ink-muted'>
+      <p className='lead mt-6'>
         Things I've built, problems I've solved and what I'm learning along the way.
       </p>
 
@@ -31,24 +32,26 @@ const BlogPage = () => {
         {posts && posts.length === 0 && <p className='text-ink-muted'>No posts yet. Check back soon!</p>}
 
         {posts && posts.length > 0 && (
-          <ul className='grid gap-6'>
+          <ul className='border-b border-line'>
             {posts.map((post) => (
-              <li key={post.slug}>
+              <li key={post.slug} className='border-t border-line'>
                 <Link
                   to={`/blog/${post.slug}`}
-                  className='card group block p-6 transition duration-300 hover:-translate-y-1 hover:border-accent/50 sm:p-8'
+                  className='group grid gap-3 py-10 md:grid-cols-[12rem_1fr] md:gap-10'
                 >
-                  <PostMeta post={post} />
-                  <h2 className='mt-3 text-2xl font-bold text-ink transition-colors group-hover:text-accent'>
-                    {post.title}
-                  </h2>
-                  {post.summary && <p className='mt-3 leading-relaxed text-ink-muted'>{post.summary}</p>}
-                  <div className='mt-5 flex flex-wrap items-center justify-between gap-4'>
-                    <Tags tags={post.tags} />
-                    <span className='flex items-center gap-2 text-sm font-medium text-accent'>
-                      Read post
-                      <HiArrowNarrowRight className='transition-transform duration-300 group-hover:translate-x-1' aria-hidden='true' />
-                    </span>
+                  <PostMeta post={post} stacked />
+                  <div>
+                    <h2 className='text-2xl font-semibold tracking-tight text-ink transition-colors duration-200 group-hover:text-accent'>
+                      {post.title}
+                    </h2>
+                    {post.summary && <p className='mt-3 max-w-[65ch] leading-relaxed text-ink-muted'>{post.summary}</p>}
+                    <div className='mt-5 flex flex-wrap items-center justify-between gap-4'>
+                      <Tags tags={post.tags} />
+                      <span className='flex items-center gap-2 text-sm font-medium text-accent'>
+                        Read post
+                        <FiArrowRight className='transition-transform duration-200 group-hover:translate-x-0.5' aria-hidden='true' />
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </li>

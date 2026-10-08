@@ -40,8 +40,8 @@ module.exports = {
             '--tw-prose-quote-borders': 'rgb(var(--accent))',
             '--tw-prose-captions': 'rgb(var(--ink-muted))',
             '--tw-prose-code': 'rgb(var(--ink))',
-            '--tw-prose-pre-code': '#e2e8f0',
-            '--tw-prose-pre-bg': '#0b1120',
+            '--tw-prose-pre-code': '#f4f4f5',
+            '--tw-prose-pre-bg': '#141417',
             '--tw-prose-th-borders': 'rgb(var(--line))',
             '--tw-prose-td-borders': 'rgb(var(--line))',
             a: { textUnderlineOffset: '3px' },
@@ -59,8 +59,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        // Self-hosted via @fontsource-variable (imported in src/index.js).
+        sans: ['"Geist Variable"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['"Geist Mono Variable"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
     },
   },
