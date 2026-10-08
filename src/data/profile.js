@@ -184,14 +184,15 @@ export const experience = [
 ];
 
 export const education = [
-  { degree: 'Master of Information Technology', school: 'Torrens University Australia', years: '2024 – 2025' },
-  { degree: 'Bachelor of Science in Information Technology', school: 'University of Southern Philippines', years: '2014 – 2018' },
+  { degree: 'Master of Information Technology', school: 'Torrens University Australia', years: '2024 - 2025' },
+  { degree: 'Bachelor of Science in Information Technology', school: 'University of Southern Philippines', years: '2014 - 2018' },
 ];
 
 const microsoft = { icon: SiMicrosoft, color: '#00A4EF', issuer: 'Microsoft' };
 const google = { icon: SiGooglecloud, color: '#4285F4', issuer: 'Google Cloud' };
 
-// Newest first. Add `url` (e.g. a Credly or Microsoft Learn link) to make a card clickable.
+// Newest first. Add `url` (e.g. a Credly or Microsoft Learn link) to make an
+// entry clickable.
 export const certifications = [
   { name: 'DevOps Engineer Expert', code: 'AZ-400', date: 'Jan 2026', ...microsoft },
   { name: 'Azure Solutions Architect Expert', code: 'AZ-305', date: 'Dec 2025', ...microsoft },

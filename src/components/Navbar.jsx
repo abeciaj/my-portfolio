@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { FaBars, FaTimes, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FiGithub, FiLinkedin, FiMenu, FiX } from 'react-icons/fi';
 import { Link as ScrollLink } from 'react-scroll';
 import { Link as RouterLink, NavLink, useLocation } from 'react-router-dom';
 import Logo from '../assets/logo.png';
 import { profile } from '../data/profile';
+import { useScrolledPast } from '../lib/hooks';
 import ThemeToggle from './ThemeToggle';
 
 const links = [
@@ -28,21 +29,20 @@ const SectionLink = ({ to, onHome, className = '', children, ...rest }) =>
     </RouterLink>
   );
 
+const navLinkClass = 'rounded-full px-3 py-2 text-sm text-ink-muted transition-colors duration-200 hover:text-ink';
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const scrolled = useScrolledPast(10);
   const onHome = useLocation().pathname === '/';
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Stop the page behind the mobile menu from scrolling.
+  // Stop the page behind the mobile menu from scrolling; Escape closes it.
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
+    if (!open) return undefined;
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
   const close = () => setOpen(false);
@@ -50,86 +50,73 @@ const Navbar = () => {
   return (
     <header
       // Transparent over the top of the page; solid once scrolled or when the menu is open.
-      className={`fixed inset-x-0 top-0 z-50 border-b transition duration-300 ${
-        scrolled || open ? 'border-line bg-surface shadow-lg shadow-black/5' : 'border-transparent bg-transparent'
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300 ${
+        scrolled || open ? 'border-line bg-surface shadow-lg shadow-zinc-900/5' : 'border-transparent bg-transparent'
       }`}
     >
-      <nav className='mx-auto flex h-[72px] max-w-5xl items-center justify-between px-6'>
-        <SectionLink to='home' onHome={onHome} onClick={close}>
-          <img src={Logo} alt={profile.name} className='h-12 w-auto' />
+      <nav aria-label='Main' className='container-page flex h-[72px] items-center justify-between'>
+        <SectionLink to='home' onHome={onHome} onClick={close} className='rounded-md'>
+          <img src={Logo} alt={profile.name} width='98' height='48' className='h-12 w-auto' />
         </SectionLink>
 
-        <div className='flex items-center gap-2 lg:gap-6'>
-          <ul className='hidden items-center gap-6 lg:flex'>
-            {links.map(({ to, label }, i) => (
+        <div className='flex items-center gap-1 lg:gap-3'>
+          <ul className='hidden items-center lg:flex'>
+            {links.map(({ to, label }) => (
               <li key={to}>
-                <SectionLink
-                  to={to}
-                  onHome={onHome}
-                  spy
-                  activeClass='!text-accent'
-                  className='text-sm text-ink-muted transition-colors hover:text-accent'
-                >
-                  <span className='font-mono text-accent'>0{i + 1}.</span> {label}
+                <SectionLink to={to} onHome={onHome} spy activeClass='!text-ink' className={navLinkClass}>
+                  {label}
                 </SectionLink>
               </li>
             ))}
             <li>
-              <NavLink
-                to='/blog'
-                className={({ isActive }) =>
-                  `text-sm transition-colors hover:text-accent ${isActive ? 'text-accent' : 'text-ink-muted'}`
-                }
-              >
-                <span className='font-mono text-accent'>0{links.length + 1}.</span> Blog
+              <NavLink to='/blog' className={({ isActive }) => `${navLinkClass} ${isActive ? '!text-ink' : ''}`}>
+                Blog
               </NavLink>
             </li>
-            <li>
-              <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-outline py-2'>
-                Resume
-              </a>
-            </li>
           </ul>
+          <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-secondary hidden py-2 lg:inline-flex'>
+            Resume
+          </a>
 
           <ThemeToggle />
 
           <button
             type='button'
             onClick={() => setOpen(!open)}
-            className='rounded p-2 text-xl text-ink lg:hidden'
+            className='rounded-full p-2 text-xl text-ink lg:hidden'
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
           >
-            {open ? <FaTimes /> : <FaBars />}
+            {open ? <FiX aria-hidden='true' /> : <FiMenu aria-hidden='true' />}
           </button>
         </div>
       </nav>
 
       {open && (
-        <div className='flex h-[calc(100vh-72px)] flex-col items-center justify-center gap-6 bg-surface lg:hidden'>
+        <div className='flex h-[calc(100vh-72px)] flex-col justify-center gap-2 overscroll-contain bg-surface px-6 lg:hidden'>
           {links.map(({ to, label }) => (
             <SectionLink
               key={to}
               to={to}
               onHome={onHome}
               onClick={close}
-              className='text-3xl font-semibold text-ink hover:text-accent'
+              className='py-2 text-4xl font-semibold tracking-tight text-ink hover:text-accent'
             >
               {label}
             </SectionLink>
           ))}
-          <RouterLink to='/blog' onClick={close} className='text-3xl font-semibold text-ink hover:text-accent'>
+          <RouterLink to='/blog' onClick={close} className='py-2 text-4xl font-semibold tracking-tight text-ink hover:text-accent'>
             Blog
           </RouterLink>
-          <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-outline'>
-            Resume
-          </a>
-          <div className='flex gap-6 text-2xl text-ink-muted'>
-            <a href={profile.linkedin} target='_blank' rel='noreferrer' aria-label='LinkedIn' className='hover:text-accent'>
-              <FaLinkedin />
+          <div className='mt-8 flex items-center gap-4'>
+            <a href={profile.resume} target='_blank' rel='noreferrer' className='btn-secondary'>
+              Resume
             </a>
-            <a href={profile.github} target='_blank' rel='noreferrer' aria-label='GitHub' className='hover:text-accent'>
-              <FaGithub />
+            <a href={profile.linkedin} target='_blank' rel='noreferrer' aria-label='LinkedIn' className='rounded-full p-2 text-2xl text-ink-muted hover:text-accent'>
+              <FiLinkedin aria-hidden='true' />
+            </a>
+            <a href={profile.github} target='_blank' rel='noreferrer' aria-label='GitHub' className='rounded-full p-2 text-2xl text-ink-muted hover:text-accent'>
+              <FiGithub aria-hidden='true' />
             </a>
           </div>
         </div>

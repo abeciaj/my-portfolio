@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { HiArrowNarrowLeft } from 'react-icons/hi';
+import { FiArrowLeft } from 'react-icons/fi';
 import { useDocumentTitle, usePosts } from '../lib/hooks';
 import Tags from '../components/Tags';
 import { PostMeta } from './BlogPage';
@@ -28,9 +28,9 @@ const PostPage = () => {
   if (posts && !post) return <NotFoundPage />;
 
   return (
-    <article className='mx-auto w-full max-w-3xl px-6 pt-32 pb-24 sm:pt-36'>
-      <Link to='/blog' className='inline-flex items-center gap-2 font-mono text-sm text-accent hover:underline'>
-        <HiArrowNarrowLeft aria-hidden='true' /> All posts
+    <article className='mx-auto w-full max-w-3xl px-6 pt-36 pb-24 md:pt-40'>
+      <Link to='/blog' className='link inline-flex items-center gap-2 text-sm'>
+        <FiArrowLeft aria-hidden='true' /> All posts
       </Link>
 
       {error && <p className='mt-10 text-danger'>Sorry, this post couldn't be loaded. Please try again later.</p>}
@@ -40,8 +40,8 @@ const PostPage = () => {
         <>
           <header className='mt-8 border-b border-line pb-8'>
             <PostMeta post={post} />
-            <h1 className='mt-3 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl'>{post.title}</h1>
-            {post.summary && <p className='mt-4 text-lg text-ink-muted'>{post.summary}</p>}
+            <h1 className='mt-3 text-4xl font-semibold tracking-tighter text-ink md:text-5xl'>{post.title}</h1>
+            {post.summary && <p className='lead mt-4'>{post.summary}</p>}
             <div className='mt-6'>
               <Tags tags={post.tags} />
             </div>

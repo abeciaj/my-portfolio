@@ -25,3 +25,34 @@ export const usePosts = () => {
 
   return state;
 };
+
+// True once the page has scrolled more than `offset` px. Uses an
+// IntersectionObserver on a sentinel instead of a scroll listener, so it only
+// re-renders when the threshold is crossed.
+export const useScrolledPast = (offset) => {
+  const [past, setPast] = useState(false);
+
+  useEffect(() => {
+    const sentinel = document.createElement('div');
+    sentinel.setAttribute('aria-hidden', 'true');
+    Object.assign(sentinel.style, {
+      position: 'absolute',
+      top: `${offset}px`,
+      left: '0',
+      width: '1px',
+      height: '1px',
+      pointerEvents: 'none',
+    });
+    document.body.appendChild(sentinel);
+    const observer = new IntersectionObserver(([entry]) =>
+      setPast(!entry.isIntersecting && entry.boundingClientRect.top < 0)
+    );
+    observer.observe(sentinel);
+    return () => {
+      observer.disconnect();
+      sentinel.remove();
+    };
+  }, [offset]);
+
+  return past;
+};
