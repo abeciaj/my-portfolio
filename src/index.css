@@ -103,6 +103,13 @@
   .link {
     @apply font-medium text-accent underline-offset-4 hover:underline focus:outline-none focus-visible:rounded focus-visible:ring-2 focus-visible:ring-accent;
   }
+  /* GFM checklists in blog posts: the checkbox replaces the bullet. */
+  .prose .contains-task-list {
+    @apply list-none pl-0;
+  }
+  .prose .task-list-item input {
+    @apply mr-2 accent-accent;
+  }
 }
 
 /* Background system. Theme-aware: every color comes from the tokens. */
