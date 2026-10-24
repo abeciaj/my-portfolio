@@ -66,9 +66,6 @@ vercel.json              cleanUrls, security headers (CSP), no-index header for 
 .claude/                 Agent tooling (see "Agent tooling")
 ```
 
-`src/components/Work.jsx`, `src/data/data.js` and `src/assets/projects/` are
-unused leftovers from an old Work section. Leave them unless asked to remove them.
-
 ## Routing
 
 Routes are `/`, `/blog` and `/blog/:slug`; anything else renders `NotFoundPage`.
