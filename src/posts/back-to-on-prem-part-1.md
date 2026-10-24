@@ -25,7 +25,9 @@ All three nodes are wired to the switch with Ethernet — Wi-Fi is intentionally
 
 ## Why this hardware
 
-Three identical nodes rather than a mix of brands or a "big box + small box" setup, for one reason: etcd (Kubernetes' cluster database) needs an odd number of members to maintain quorum, and three same-spec nodes give a cluster that can lose any single node and keep running — real fault tolerance, not just more horsepower in fewer places.
+Three identical nodes rather than a mix of brands or a "big box + small box" setup, so any node can take over any other node's work. In this series, node1 runs the control-plane and node2 and node3 are workers. If a worker goes down, its pods move to the other two, but node1 is still a single point of failure for the control-plane.
+
+The k3s server runs on embedded etcd (Kubernetes' cluster database) from day one, though, which leaves room to grow. etcd needs an odd number of members to keep quorum, so making all three nodes control-plane servers later gives a cluster that can lose any single node and keep running. Identical hardware means that's a configuration change, not a hardware rebuild.
 
 The OptiPlex 7070 Micro specifically, over older Micro-format options, for:
 
@@ -40,7 +42,7 @@ The OptiPlex 7070 Micro specifically, over older Micro-format options, for:
 2. Connect each of the 3 OptiPlex nodes to the switch with its own Ethernet cable — that uses 3 of the remaining 4 ports, leaving one spare.
 3. Power on the switch first, then the three nodes.
 
-No VLANs or managed-switch configuration at this stage — a flat, unmanaged 5-port switch is enough for 3 nodes. Static IPs for each node are assigned later, either via DHCP reservations on the router or configured directly on each node (covered in the installation steps below).
+No VLANs or managed-switch configuration at this stage — a flat, unmanaged 5-port switch is enough for 3 nodes. Each node does need an IP that never changes, which comes from a DHCP reservation on the router after the install (see the post-install checklist below).
 
 ## Building the Debian 13 USB installer
 
@@ -90,7 +92,7 @@ Repeat this on all 3 nodes before moving to the install itself.
 
 ## Installing Debian 13
 
-Run through these steps on each of the 3 nodes. The netinst installer is menu-driven and the same on every machine — only the hostname and static IP differ per node.
+Run through these steps on each of the 3 nodes. The netinst installer is menu-driven and the same on every machine — only the hostname differs per node.
 
 1. **Choose install method.** At the boot menu, select **Install** (the plain text-mode installer — the graphical one works too, but text mode is lighter and plenty for a headless server).
 2. **Language, location, keyboard.** Pick your locale and keyboard layout.
@@ -120,12 +122,12 @@ Before handing off to Ansible in Part 2, confirm on all 3 nodes:
 - [ ] Each node has network connectivity (`ping -c 3 debian.org` succeeds)
 - [ ] SSH is reachable from your workstation: `ssh youruser@<node-ip>`
 - [ ] Each node has a distinct hostname (`hostname` returns `node1`, `node2`, `node3` respectively)
-- [ ] You've noted each node's current IP (`ip a`) — these get turned into static reservations before Part 2
+- [ ] Each node has a DHCP reservation on your router, so its IP never changes (`ip a` shows the IP and the MAC address to reserve it for)
 
-Static IPs aren't configured in this post on purpose — Part 2 sets them (along with everything else) through Ansible, so the whole fleet is configured the same way, in one place, rather than by hand on each machine.
+The IPs aren't set on the nodes themselves on purpose. The router hands each node the same address every time, and Part 2 builds the Ansible inventory and every node's `/etc/hosts` from those addresses, so the whole fleet is configured the same way, in one place, rather than by hand on each machine.
 
 ## What's next
 
 At this point, three bare Debian 13 machines are wired, booted, and reachable over SSH — but they're still three separate boxes, each needing the same setup repeated by hand.
 
-**Part 2** replaces that repetition with Ansible: one playbook that updates all 3 nodes, installs common tools, sets static IPs and `/etc/hosts` entries, configures fail2ban and the firewall, and installs k3s — a 1-command control-plane join followed by 2-command worker joins, run automatically across all 3 machines from a single command on your workstation.
+**Part 2** replaces that repetition with Ansible: one playbook that updates all 3 nodes, installs common tools, sets hostnames and `/etc/hosts` entries, configures fail2ban and the firewall, and installs k3s — the control-plane on node1, then node2 and node3 joining as workers, run automatically across all 3 machines from a single command on your workstation.

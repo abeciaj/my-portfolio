@@ -19,6 +19,13 @@ const MarkdownLink = ({ href = '', children }) => {
   );
 };
 
+// Wide tables scroll inside their own box instead of widening the page on phones.
+const MarkdownTable = ({ node, ...props }) => (
+  <div className='overflow-x-auto'>
+    <table {...props} />
+  </div>
+);
+
 const PostPage = () => {
   const { slug } = useParams();
   const { posts, error } = usePosts();
@@ -48,7 +55,7 @@ const PostPage = () => {
           </header>
 
           <div className='prose prose-lg mt-10 max-w-none'>
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: MarkdownLink }}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ a: MarkdownLink, table: MarkdownTable }}>
               {post.body}
             </ReactMarkdown>
           </div>
