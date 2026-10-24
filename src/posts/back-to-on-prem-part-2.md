@@ -200,6 +200,7 @@ node1 is upgraded first. With a single control-plane there's nowhere to move its
 - **No backups yet.** Scheduled etcd snapshots are turned off until there's storage that isn't on node1 itself. Until then, take one by hand with `sudo k3s etcd-snapshot save`.
 - **Host key checking is on.** If you reinstall a node, Ansible refuses to connect until you remove the old key with `ssh-keygen -R <node-ip>` and SSH in once to accept the new one.
 - **No Docker.** k3s bundles containerd, so the cluster doesn't need a separate container runtime.
+- **DNS is just `/etc/hosts`.** It's the simplest thing that works for 3 nodes. A proper DNS server can replace it later.
 - **Linted on every push.** GitHub Actions runs `ansible-playbook --syntax-check` and `ansible-lint` (production profile) on the repo. Run `ansible-lint` locally to get the same checks.
 
 ## What's next
