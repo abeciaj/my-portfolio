@@ -133,7 +133,7 @@ Both are set before the first install on purpose: turning either on later means 
 
 **k3s agents, node2 & node3, one at a time.** Installs k3s in agent mode at the same version, joining each one to node1 with the token the server play captured. The install command carries the token, so the task runs with `no_log` to keep it out of the output. On an upgrade, each agent is drained first, then upgraded, checked for Ready on the new version and uncordoned.
 
-**Verify cluster.** Polls `kubectl get nodes` on node1 until all 3 nodes report Ready (up to 5 minutes, since agents take a moment to register), then prints the node list. If a node never becomes Ready, the play fails instead of quietly printing a half-joined cluster.
+**Verify cluster.** Polls `kubectl get nodes` on node1 until all 3 nodes report Ready (up to 5 minutes, since agents take a moment to register), then prints the node list. If a node never becomes Ready, the play fails instead of quietly printing a half-joined cluster. Finally, it saves the cluster's kubeconfig to your workstation, so `kubectl` works from there right away (see Running it).
 
 ## The firewall
 
@@ -147,8 +147,11 @@ ufw denies all incoming traffic except:
 | 10250/tcp | `lan_subnet` | Kubelet (server ↔ agents) |
 | 80, 443/tcp | `lan_subnet` | HTTP(S) to Traefik, k3s's built-in ingress |
 | Any | `10.42.0.0/16`, `10.43.0.0/16` | k3s pod and service networks |
+| 9100/tcp | The 3 nodes' own IPs | node-exporter metrics, scraped by Prometheus (Part 3) |
 
 The k3s rules are easy to miss. Without 6443, 8472 and 10250 open between the nodes, the agent install script still finishes without an error, but node2 and node3 never join and pod networking breaks.
+
+The 9100 rule is for Part 3's monitoring stack. It's opened before monitoring is installed so a fresh setup works first time. node-exporter listens on each node's own IP, and when Prometheus scrapes a node it isn't running on, the request arrives from the other node's LAN address. Flannel rewrites pod-to-node traffic that way, so the pod network rule doesn't cover it. The rule allows only the nodes themselves, not the whole LAN. node-exporter has no login, so this keeps host metrics hidden from everything else on the network. If you ran the playbook before this rule was added, apply it with `ansible-playbook site.yml --tags security`.
 
 HTTP(S) needs two rules per port. k3s's built-in load balancer (ServiceLB) forwards ports 80 and 443 on each node to the Traefik pod, so the traffic is *routed* through the node rather than delivered to it, and ufw needs a `route` rule as well as the normal one.
 
@@ -169,17 +172,19 @@ ansible-playbook site.yml --tags base       # OS updates, packages, hostnames, s
 ansible-playbook site.yml --tags security   # SSH hardening, fail2ban, ufw, auto-updates
 ansible-playbook site.yml --tags k3s        # install/upgrade k3s, then verify
 ansible-playbook site.yml --tags verify     # check all nodes are Ready
+ansible-playbook site.yml --tags kubeconfig # re-fetch the kubeconfig only
 ```
 
-To use `kubectl` from your workstation, fetch the kubeconfig from node1. It's only readable by root, so read it with `sudo` over SSH rather than `scp`, and write it to its own file so it doesn't overwrite an existing `~/.kube/config`:
+To use `kubectl` from your workstation, you need the cluster's kubeconfig. k3s writes it on node1 at `/etc/rancher/k3s/k3s.yaml`. The file is only readable by root, and it points at `127.0.0.1`, which only works on node1 itself. The last play handles both: it reads the file with sudo, points it at node1's IP and saves it on your workstation as `~/.kube/homelab.yaml`. It goes in its own file, so an existing `~/.kube/config` isn't overwritten, and it's only readable by you.
 
 ```bash
-mkdir -p ~/.kube
-ssh youruser@<node1-ip> sudo cat /etc/rancher/k3s/k3s.yaml > ~/.kube/homelab.yaml
-sed -i.bak 's/127.0.0.1/<node1-ip>/' ~/.kube/homelab.yaml   # works on Linux and macOS
 export KUBECONFIG=~/.kube/homelab.yaml
 kubectl get nodes
 ```
+
+The playbook does this, instead of an `ssh ... sudo cat` one-liner, because the one-liner breaks when your sudo needs a password. sudo has no terminal to prompt on, so it fails, and the shell has already emptied the output file by then. The playbook asks for the sudo password once with `-K`, and that's all it needs.
+
+Treat `~/.kube/homelab.yaml` like a password. It holds a cluster-admin certificate, so anyone with the file has full control of the cluster. Never commit it.
 
 **Re-running is safe.** The playbook is idempotent — running it again won't reinstall k3s or redo finished steps, it just confirms everything's still in the desired state. That makes it the right way to push any future config change (edit `inventory.ini`, re-run, done on all 3 nodes at once).
 

@@ -17,7 +17,7 @@ Three identical nodes plus the networking to tie them together:
 
 | Item | Spec | Role |
 | --- | --- | --- |
-| 3x Dell OptiPlex 7070 Micro | Intel 9th/10th-gen i5, Q470 chipset, 16GB RAM, M.2 NVMe SSD | 1 control-plane + 2 worker nodes |
+| 3x Dell OptiPlex 7070 Micro | Intel 8th/9th-gen i5, Q370 chipset, 16GB RAM, M.2 NVMe SSD | 1 control-plane + 2 worker nodes |
 | 5-port network switch | Gigabit | Wires all 3 nodes (and the router) together |
 | USB flash drive (8GB+) | Debian 13 installer | One-time use, to install the OS on each node |
 
@@ -31,7 +31,7 @@ The k3s server runs on embedded etcd (Kubernetes' cluster database) from day one
 
 The OptiPlex 7070 Micro specifically, over older Micro-format options, for:
 
-- **Newer platform** — Q470 chipset, two full CPU generations ahead of the older 7040/7050 Micro units commonly recommended for homelabs
+- **Newer platform** — Q370 chipset with 8th/9th-gen Intel CPUs, newer than the 6th/7th-gen 7040/7050 Micro units commonly recommended for homelabs
 - **16GB RAM per node** — comfortable headroom for k3s, the monitoring stack, and real workloads without hitting swap
 - **Low power draw** — the Micro form factor runs on a T-series or low-wattage CPU, which matters running 3 machines 24/7
 - **Tiny footprint** — all three fit on a shelf next to the switch, no rack required
