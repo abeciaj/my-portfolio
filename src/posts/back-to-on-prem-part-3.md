@@ -97,27 +97,17 @@ The chart's defaults are close, but four things needed changing for this cluster
 
 `local-path` has one catch: each volume lives on a single node. While Part 2's playbook drains that node for an upgrade, Prometheus or Grafana stays down until the node is back, and losing the node outright loses its data. Longhorn (below) fixes that by replicating volumes across nodes.
 
-### One more firewall rule
+### The node-exporter firewall rule
 
-node-exporter listens on port 9100 on each node's own IP. When Prometheus scrapes a node it isn't running on, the request arrives from another node's LAN address, and Part 2's firewall doesn't allow 9100 from the LAN. The result is that node-exporter shows as down for the two nodes Prometheus isn't on.
+node-exporter listens on port 9100 on each node's own IP. When Prometheus scrapes a node it isn't running on, the request arrives from another node's LAN address. Part 2's playbook already allows 9100 from the three nodes, and only from them. node-exporter has no login, so the rest of the LAN can't read your hosts' metrics.
 
-To fix it, add 9100 to the node-to-node rules in Part 2's `site.yml`:
-
-```yaml
-      loop:
-        - { port: "6443", proto: tcp }    # Kubernetes API
-        - { port: "8472", proto: udp }    # Flannel VXLAN
-        - { port: "10250", proto: tcp }   # Kubelet
-        - { port: "9100", proto: tcp }    # node-exporter
-```
-
-Then apply it with:
+If you ran Part 2's playbook before that rule was added, node-exporter shows as down for the two nodes Prometheus isn't running on. Pull the latest [ansible-homelab](https://github.com/abeciaj/ansible-homelab) and apply the firewall changes:
 
 ```bash
 ansible-playbook site.yml --tags security
 ```
 
-You can check every scrape target in Prometheus under **Status → Targets**.
+You can check every scrape target in Prometheus under **Status → Targets**. All three `node-exporter` targets should show **UP**.
 
 ## Accessing Grafana
 
@@ -174,7 +164,7 @@ Then update the Secret to the same value, so `grafana-password.sh` keeps printin
 
 Prometheus and Alertmanager have no login at all, so anything that can reach them can read every metric or silence every alert.
 
-**Network policies.** k3s enforces Kubernetes NetworkPolicies out of the box, through its embedded kube-router. `network-policies.yaml` lets only pods in the `monitoring` namespace reach Prometheus and Alertmanager, and only Traefik reach Grafana's login page. `kubectl port-forward` still works, because it doesn't go through the pod network.
+**Network policies.** k3s enforces Kubernetes NetworkPolicies out of the box, through its embedded kube-router. `network-policies.yaml` lets only pods in the `monitoring` namespace reach Prometheus and Alertmanager. Grafana only accepts traffic from Traefik, for the Ingress, and from Prometheus, which scrapes Grafana's own metrics. `kubectl port-forward` still works, because it doesn't go through the pod network.
 
 **Grafana settings.** Sign-up, anonymous access, Gravatar, external snapshot publishing and usage reporting are explicitly off in `values.yaml`. Most of those are Grafana's defaults already; stating them means a future chart release can't quietly change them.
 
