@@ -36,3 +36,7 @@ export const parsePost = (slug, raw) => {
     body,
   };
 };
+
+// Newest first. Posts from the same day fall back to slug order, so a
+// series published together lists part-3 above part-2.
+export const byNewest = (a, b) => b.date.localeCompare(a.date) || b.slug.localeCompare(a.slug);

@@ -8,10 +8,11 @@
 //
 // With `cleanUrls` in vercel.json, build/blog.html is served at /blog and
 // build/blog/<slug>.html at /blog/<slug>.
+import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parsePost } from '../src/lib/frontmatter.mjs';
+import { byNewest, parsePost } from '../src/lib/frontmatter.mjs';
 
 const SITE = {
   url: 'https://jayabecia.com',
@@ -124,7 +125,7 @@ const loadPosts = async () => {
   const posts = await Promise.all(
     files.map(async (f) => parsePost(f.replace(/\.md$/, ''), await readFile(path.join(postsDir, f), 'utf8')))
   );
-  return posts.filter((p) => !p.draft).sort((a, b) => (a.date < b.date ? 1 : -1));
+  return posts.filter((p) => !p.draft).sort(byNewest);
 };
 
 const main = async () => {
@@ -208,7 +209,29 @@ const main = async () => {
   console.log(`SEO pages: wrote ${pages.length} HTML files and sitemap.xml (${urls.length} URLs).`);
 };
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+// The Content-Security-Policy in vercel.json allows the inline theme script in
+// public/index.html by its hash. Editing that script changes the hash, and the
+// browser would then silently block it, so fail the build instead.
+const checkCspHashes = async () => {
+  const html = await readFile(path.join(buildDir, 'index.html'), 'utf8');
+  const vercel = JSON.parse(await readFile(path.join(root, 'vercel.json'), 'utf8'));
+  const csp = vercel.headers
+    .flatMap((rule) => rule.headers)
+    .find((h) => h.key === 'Content-Security-Policy')?.value;
+  if (!csp) return;
+
+  const inline = /<script(?![^>]*\bsrc=)(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g;
+  for (const [, body] of html.matchAll(inline)) {
+    const hash = `'sha256-${createHash('sha256').update(body).digest('base64')}'`;
+    if (!csp.includes(hash)) {
+      throw new Error(`An inline script in build/index.html isn't allowed by the CSP. Replace the script hash in vercel.json with ${hash}`);
+    }
+  }
+};
+
+main()
+  .then(checkCspHashes)
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

@@ -11,7 +11,7 @@
 //
 // Webpack bundles each file as a static asset, so posts are fetched
 // on demand instead of inflating the JavaScript bundle.
-import { parsePost } from './frontmatter.mjs';
+import { byNewest, parsePost } from './frontmatter.mjs';
 
 const files = require.context('../posts', false, /\.md$/);
 
@@ -29,11 +29,7 @@ export const getPosts = () => {
         return parsePost(key.replace(/^\.\//, '').replace(/\.md$/, ''), await res.text());
       })
     )
-      .then((posts) =>
-        posts
-          .filter((post) => !post.draft)
-          .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0))
-      )
+      .then((posts) => posts.filter((post) => !post.draft).sort(byNewest))
       .catch((err) => {
         cache = undefined; // allow a retry on the next visit
         throw err;

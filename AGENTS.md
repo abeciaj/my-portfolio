@@ -62,7 +62,7 @@ src/
   index.css              Theme tokens (CSS variables) and component classes
 scripts/build-pages.mjs  Post-build SEO step (see below)
 public/                  index.html, resume.pdf, og-image.png, icons, robots.txt
-vercel.json              cleanUrls, no-index header for resume.pdf
+vercel.json              cleanUrls, security headers (CSP), no-index header for resume.pdf
 .claude/                 Agent tooling (see "Agent tooling")
 ```
 
@@ -137,6 +137,25 @@ Vercel builds every push; merging to `master` deploys production.
 - Never add a `homepage` field to `package.json`; it breaks asset paths.
 - `public/resume.pdf` is served with `X-Robots-Tag: noindex`. Replace the file to
   update the resume; keep the name.
+
+## Security headers
+
+`vercel.json` sends a strict Content-Security-Policy and the usual hardening
+headers (HSTS, `nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy`,
+`Permissions-Policy`, `Cross-Origin-Opener-Policy`) on every response.
+
+- Everything loads from the site itself. The only outside origins allowed are
+  the contact form's (`connect-src https://getform.io https://forminit.com`;
+  Getform is rebranding as Forminit). A new third-party script, font, image
+  host, analytics or form service will be **blocked** until you add its origin
+  to the matching CSP directive.
+- No inline scripts or `<style>` blocks. The one exception is the theme script
+  in `public/index.html`, allowed by its `sha256-` hash. If you edit that script,
+  the post-build step fails and prints the new hash to put in `vercel.json`.
+- `img-src` allows `data:` for the film-grain SVG in `index.css`.
+- `npx serve build` does **not** apply these headers (serve uses glob patterns,
+  not Vercel's). Check CSP changes on a Vercel preview deployment: open the
+  browser console and look for "Content Security Policy" errors.
 
 ## Conventions
 
