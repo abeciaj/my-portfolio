@@ -140,17 +140,17 @@ export const experience = [
   {
     role: 'Database, Application & DDoS Administrator',
     company: 'Bitxify Pty. Ltd.',
-    start: 'Jul 2024',
+    start: 'Feb 2024',
     end: 'Present',
     summary:
-      'Managing cloud-based systems and services across AWS and Microsoft Azure, and administering MySQL and PostgreSQL environments.',
+      'Managing cloud-based systems and services across AWS and Microsoft Azure, and administering SQL Server and PostgreSQL environments.',
     highlights: [
       'Developed IIS and Windows Services deployment scripts, reducing application deployment time by 80%.',
       'Implemented Prometheus and Grafana monitoring for better visibility into system and application performance.',
       'Automated initial configuration and dependency installation for new Windows Servers.',
       'Led the implementation of Azure and AWS Savings Plans to optimize compute costs.',
     ],
-    tags: ['AWS', 'Azure', 'MySQL', 'PostgreSQL', 'Windows Server', 'Prometheus', 'Grafana'],
+    tags: ['AWS', 'Azure', 'SQL Server', 'PostgreSQL', 'Windows Server', 'Prometheus', 'Grafana'],
   },
   {
     role: 'Cloud Engineer',
@@ -162,7 +162,6 @@ export const experience = [
     highlights: [
       'Developed reusable Terraform modules for Azure Web Apps and Container Apps, improving deployment consistency.',
       'Built an automated Azure subscription quota management script, reducing manual administration.',
-      'Identified opportunities to improve cloud resource utilization, performance and cost efficiency.',
     ],
     tags: ['Azure', 'Terraform', 'CI/CD'],
   },
