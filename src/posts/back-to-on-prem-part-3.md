@@ -120,7 +120,7 @@ k3s ships with the Traefik ingress controller by default, so the simplest path t
 
 ### Exposing Grafana properly (optional, beyond port-forward)
 
-Once you're past the initial check, the repo's Ingress gives Grafana a stable address on your LAN instead of a manual port-forward every session:
+Once you're past the initial check, the repo's Ingress gives Grafana a permanent address on your LAN, so you don't have to start a port-forward every session. It serves HTTPS only, using the self-signed certificate Traefik already ships with in k3s. No extra tools are needed, and your Grafana login never crosses the LAN in plain text:
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -128,7 +128,13 @@ kind: Ingress
 metadata:
   name: grafana
   namespace: monitoring
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
+  tls:
+    - hosts:
+        - grafana.home.lab
   rules:
     - host: grafana.home.lab   # add this to your router's DNS or /etc/hosts
       http:
@@ -147,7 +153,11 @@ kubectl apply -f monitoring/grafana-ingress.yaml
 echo "<node-ip> grafana.home.lab" | sudo tee -a /etc/hosts
 ```
 
-Any node's IP works, since k3s's built-in load balancer listens on 80 and 443 on every node, and Part 2's firewall already allows both from the LAN. This is plain HTTP, so your Grafana login crosses the LAN unencrypted until TLS is added.
+Then open **https://grafana.home.lab**. Any node's IP works in the hosts entry, since k3s's built-in load balancer listens on 443 on every node, and Part 2's firewall already allows it from the LAN. The `tls` block without a `secretName` tells Traefik to use its default certificate. Because that certificate is self-signed, the browser warns about it once; accept it and you're in. A trusted certificate needs cert-manager, which is a post of its own. Plain `http://` isn't routed at all, so it returns a 404 rather than quietly sending your password unencrypted.
+
+To avoid editing `/etc/hosts` on every device, add `grafana.home.lab` as a local DNS entry on your router instead, if it supports that.
+
+**On macOS, "Unable to connect" can be a permissions issue.** Since macOS Sequoia, each app needs the **Local Network** permission to reach devices on your LAN, and an app update can silently reset it. Without the permission, connections fail as "no route to host", or "Unable to connect" in the browser, even though the network is fine. If `kubectl` works in Terminal but not in your editor's terminal, or `curl -k https://grafana.home.lab` works but the browser doesn't, this is the cause. Turn the app on under **System Settings → Privacy & Security → Local Network**, then quit and reopen it.
 
 ### Changing the Grafana password
 
@@ -181,6 +191,18 @@ Prometheus and Alertmanager have no login at all, so anything that can reach the
 - **Kubernetes / Compute Resources / Namespace (Pods)** — drill into which pods are using what
 
 Spend a few minutes clicking through these before building anything custom — they cover most of what you'd want to know day-to-day.
+
+To compare the three servers side by side, use **Kubernetes / Compute Resources / Nodes Overview** for CPU and memory in one table, or **Node Exporter / USE Method / Cluster** for one line per node on each graph. In the Node Exporter dashboards, the **instance** dropdown lists nodes by IP and port (`192.168.1.101:9100` and so on), not by name, so all three are there even if it looks like one. The **cluster** dropdown shows a single entry, because three nodes make up one cluster.
+
+## After a reboot
+
+Nothing needs re-running when the nodes are switched off and on again. k3s runs as a systemd service, so it starts at boot, and the agents keep retrying until node1 is up. Kubernetes then recreates every monitoring pod from the state stored in etcd. Metrics history and Grafana's dashboards survive because they're on the `local-path` volumes, and the Ingress, network policies and `grafana-admin` Secret persist too. Expect Grafana back 2–5 minutes after the nodes boot, with a gap in the graphs for the time they were off.
+
+Three things don't recover on their own:
+
+- **A node that stays down.** Each `local-path` volume belongs to one node, so if Prometheus's or Grafana's node is off, that pod waits in `Pending` until the node returns. Longhorn (below) removes this limit.
+- **The hosts entry.** `grafana.home.lab` points at one node's IP. If that node is down, switch the entry to another node; Traefik answers on all three.
+- **Power cuts.** By default, the OptiPlex 7070 stays off when power comes back. To make it boot by itself, set **Power Management → AC Recovery** to **Power On** in the BIOS (F2 at boot) on each node.
 
 ## Upgrading the chart
 
