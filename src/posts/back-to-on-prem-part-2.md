@@ -26,10 +26,10 @@ Ansible flips that: describe the desired end state once, in a playbook, and run 
 - The `community.general` collection (for the `ufw` module), pinned in the repo's `requirements.yml`
 - SSH client (already present on Linux/macOS)
 
+Install Ansible with `brew install ansible` on macOS, or `sudo apt install -y ansible` on a Debian/Ubuntu workstation. Then confirm it installed:
+
 ```bash
-brew install ansible                 # macOS
-sudo apt install -y ansible          # Debian/Ubuntu workstation
-ansible --version                    # confirm it installed
+ansible --version
 ```
 
 The collection is installed from inside the repo, once you've cloned it (see Setup).
@@ -80,10 +80,10 @@ cd ansible-homelab
 ansible-galaxy collection install -r requirements.yml
 ```
 
-**2. Set up passwordless SSH key access to all 3 nodes:**
+**2. Set up passwordless SSH key access to all 3 nodes.** Skip `ssh-keygen` if you already have a key:
 
 ```bash
-ssh-keygen -t ed25519          # skip if you already have a key
+ssh-keygen -t ed25519
 ssh-copy-id youruser@<node1-ip>
 ssh-copy-id youruser@<node2-ip>
 ssh-copy-id youruser@<node3-ip>
@@ -160,20 +160,20 @@ The playbook adds every allow rule before it turns ufw on. If you later expose a
 ## Running it
 
 ```bash
-ansible-playbook site.yml        # add -K if your user needs a sudo password
+ansible-playbook site.yml
 ```
 
-This takes a few minutes — the apt upgrade and k3s downloads are the slow parts. Watch for `failed=0` on every play's recap at the end. The last play prints the cluster's node list directly in the Ansible output, so success looks like 3 nodes listed with `STATUS Ready`.
+Add `-K` if your user needs a password for sudo. This takes a few minutes — the apt upgrade and k3s downloads are the slow parts. Watch for `failed=0` on every play's recap at the end. The last play prints the cluster's node list directly in the Ansible output, so success looks like 3 nodes listed with `STATUS Ready`.
 
-Once the nodes have been through one full run, each part can also be run on its own with tags:
+Once the nodes have been through one full run, each part can also be run on its own with tags, for example `ansible-playbook site.yml --tags security`:
 
-```bash
-ansible-playbook site.yml --tags base       # OS updates, packages, hostnames, swap, /etc/hosts
-ansible-playbook site.yml --tags security   # SSH hardening, fail2ban, ufw, auto-updates
-ansible-playbook site.yml --tags k3s        # install/upgrade k3s, then verify
-ansible-playbook site.yml --tags verify     # check all nodes are Ready
-ansible-playbook site.yml --tags kubeconfig # re-fetch the kubeconfig only
-```
+| Tag | What it runs |
+| --- | --- |
+| `base` | OS updates, packages, hostnames, swap, `/etc/hosts` |
+| `security` | SSH hardening, fail2ban, ufw, auto-updates |
+| `k3s` | Install or upgrade k3s, then verify |
+| `verify` | Check all nodes are Ready |
+| `kubeconfig` | Re-fetch the kubeconfig only |
 
 To use `kubectl` from your workstation, you need the cluster's kubeconfig. k3s writes it on node1 at `/etc/rancher/k3s/k3s.yaml`. The file is only readable by root, and it points at `127.0.0.1`, which only works on node1 itself. The last play handles both: it reads the file with sudo, points it at node1's IP and saves it on your workstation as `~/.kube/homelab.yaml`. It goes in its own file, so an existing `~/.kube/config` isn't overwritten, and it's only readable by you.
 
