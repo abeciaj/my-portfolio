@@ -17,18 +17,23 @@ Helm and `kubectl` run on your workstation, not on the nodes. Both are clients: 
 - `kubectl` and `helm` installed on your workstation
 - A kubeconfig for the cluster (the `~/.kube/homelab.yaml` file from the end of Part 2)
 
+On macOS:
+
 ```bash
-brew install kubectl helm      # macOS
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash   # Helm on Linux
+brew install kubectl helm
 ```
 
-On Linux, install `kubectl` from the [Kubernetes install docs](https://kubernetes.io/docs/tasks/tools/).
+On Linux, install Helm with its install script, and `kubectl` from the [Kubernetes install docs](https://kubernetes.io/docs/tasks/tools/):
+
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
 
 Confirm both can already see your cluster before going further:
 
 ```bash
 export KUBECONFIG=~/.kube/homelab.yaml
-kubectl get nodes   # all 3 nodes, STATUS Ready
+kubectl get nodes
 helm version
 ```
 
@@ -114,8 +119,13 @@ You can check every scrape target in Prometheus under **Status → Targets**. Al
 k3s ships with the Traefik ingress controller by default, so the simplest path to reach Grafana without port-forwarding every time is through an Ingress. For a first look, though, port-forwarding is the fastest way to confirm it works:
 
 ```bash
-./scripts/grafana-port-forward.sh     # then open http://localhost:3000
-./scripts/grafana-password.sh         # prints the password; the username is admin
+./scripts/grafana-port-forward.sh
+```
+
+Open **http://localhost:3000** while it runs. In a second terminal, print the password and log in as `admin`:
+
+```bash
+./scripts/grafana-password.sh
 ```
 
 ### Exposing Grafana properly (optional, beyond port-forward)
@@ -150,10 +160,13 @@ spec:
 
 ```bash
 kubectl apply -f monitoring/grafana-ingress.yaml
-echo "<node-ip> grafana.home.lab" | sudo tee -a /etc/hosts
+NODE_IP=192.168.0.151
+echo "$NODE_IP grafana.home.lab" | sudo tee -a /etc/hosts
 ```
 
-Then open **https://grafana.home.lab**. Any node's IP works in the hosts entry, since k3s's built-in load balancer listens on 443 on every node, and Part 2's firewall already allows it from the LAN. The `tls` block without a `secretName` tells Traefik to use its default certificate. Because that certificate is self-signed, the browser warns about it once; accept it and you're in. A trusted certificate needs cert-manager, which is a post of its own. Plain `http://` isn't routed at all, so it returns a 404 rather than quietly sending your password unencrypted.
+Then open **https://grafana.home.lab**. Set `NODE_IP` to any of your nodes' IPs. Any node works, since k3s's built-in load balancer listens on 443 on every node, and Part 2's firewall already allows it from the LAN. The `tls` block without a `secretName` tells Traefik to use its default certificate. Because that certificate is self-signed, the browser warns about it once; accept it and you're in. [Trusted HTTPS in a k8s Homelab with cert-manager](/blog/k8s-cert-manager) replaces it with a certificate from your own CA that your devices trust. Plain `http://` isn't routed at all, so it returns a 404 rather than quietly sending your password unencrypted.
+
+The repo's `grafana-ingress.yaml` already includes the changes from the cert-manager post: a `cert-manager.io/cluster-issuer` annotation and a `secretName`. Until you've set up cert-manager, apply the version shown above, and switch to the repo's version afterwards.
 
 To avoid editing `/etc/hosts` on every device, add `grafana.home.lab` as a local DNS entry on your router instead, if it supports that.
 
@@ -221,6 +234,8 @@ Each of these is enough for its own post — this one stops at "the cluster is m
 ## Wrapping up the series
 
 Three posts, three nodes: picked and justified the hardware, installed Debian by hand once to understand the steps, automated the repeat with Ansible, and now have visibility into what's actually running. That's a complete, working homelab — not a toy cluster, something you can keep building on.
+
+Two standalone posts build on it: [trusted HTTPS with cert-manager](/blog/k8s-cert-manager), and a [self-hosted Git server and CI/CD with Forgejo](/blog/k8s-forgejo).
 
 ---
 

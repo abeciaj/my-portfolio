@@ -60,11 +60,10 @@ The netinst image is small and pulls the rest of the packages over the network d
 
 **2. Write it to the USB drive**
 
-On Linux or macOS, find the USB device first (be certain of the device name — this overwrites it):
+On Linux or macOS, find the USB device first (be certain of the device name — this overwrites it). On Linux, `lsblk` lists it as something like `/dev/sdb`; on macOS, use:
 
 ```bash
-lsblk        # Linux: identify the USB device, e.g. /dev/sdb
-diskutil list  # macOS
+diskutil list
 ```
 
 Then write the image:
