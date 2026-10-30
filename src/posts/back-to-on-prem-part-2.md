@@ -116,20 +116,20 @@ This has to pass using your SSH **key**, not a password. The playbook turns off 
 
 ## What the playbook does
 
-`site.yml` runs six plays in order:
+`site.yml` runs six plays in order. A seventh, a security audit, only runs when you ask for it; it's covered in [Vulnerability Scanning a k8s Homelab](/blog/k8s-vulnerability-scanning).
 
 **Preflight checks.** Before touching anything, the playbook stops if `inventory.ini` still has placeholders, or if the machine running Ansible is outside the SSH allow range. The firewall would otherwise lock you out halfway through the run.
 
 **Base system setup, one node at a time.** Updates the apt cache and checks for pending upgrades. If there are any and the node is already in the cluster, it drains the node first, upgrades, reboots if needed, waits for the node to come back Ready and uncordons it. Then it installs common tools (curl, git, htop, vim, ufw, fail2ban, unattended-upgrades), sets the hostname from the inventory, disables swap (required by Kubernetes) and writes `/etc/hosts` from the inventory so nodes can resolve each other by name. Running with `serial: 1` means OS updates never take down more than one node at once.
 
-**Security hardening.** Turns on daily unattended security updates, hardens SSH (key-only logins, no root, only your `ansible_user`), configures fail2ban for SSH and enables `ufw` with a default-deny policy (see the firewall section below). The SSH config is checked with `sshd -t` before it's written, so a typo can't leave a node with a broken SSH daemon.
+**Security hardening.** Turns on daily unattended security updates, hardens SSH (key-only logins, no root, only your `ansible_user`, no forwarding), configures fail2ban for SSH and enables `ufw` with a default-deny policy (see the firewall section below). The SSH config is checked with `sshd -t` before it's written, so a typo can't leave a node with a broken SSH daemon. It also applies kernel hardening settings, and blocks unused network protocols and USB storage. Those came out of a later scan, covered in [Vulnerability Scanning a k8s Homelab](/blog/k8s-vulnerability-scanning).
 
 **k3s server, node1 only.** Writes `/etc/rancher/k3s/config.yaml` *before* k3s first starts, so the cluster comes up with:
 
 - **embedded etcd** instead of the default SQLite (`cluster-init`), which is what lets more servers join later
 - **Secrets encrypted at rest** (`secrets-encryption`)
 
-Both are set before the first install on purpose: turning either on later means a datastore migration or a key rotation. It then installs k3s in server mode at the version pinned in `k3s_version` and reads the auto-generated join token straight off disk for the agents to use — no manual copy-pasting between terminals.
+Both are set before the first install on purpose: turning either on later means a datastore migration or a key rotation. The same file also turns on API audit logging, cluster-wide Pod Security defaults and `protect-kernel-defaults`, which can safely be added later. It then installs k3s in server mode at the version pinned in `k3s_version` and reads the auto-generated join token straight off disk for the agents to use — no manual copy-pasting between terminals.
 
 **k3s agents, node2 & node3, one at a time.** Installs k3s in agent mode at the same version, joining each one to node1 with the token the server play captured. The install command carries the token, so the task runs with `no_log` to keep it out of the output. On an upgrade, each agent is drained first, then upgraded, checked for Ready on the new version and uncordoned.
 
