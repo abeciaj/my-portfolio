@@ -48,7 +48,7 @@ k8s-homelab/
 On the first run, it asks for two accounts:
 
 1. **An admin account**, for administration only. Leave the password empty to have one generated. `admin` itself is a reserved name in Forgejo.
-2. **An everyday account**, a normal user for your own repos. Forgejo prints a one-time password for it and asks for a new one at first login.
+2. **An everyday account**, a normal user for your own repos. The email can be left empty: this Forgejo doesn't send mail, so the script uses `<user>@forgejo.home.lab`. Forgejo prints a one-time password for the account and asks for a new one at first login.
 
 The passwords are typed at a hidden prompt and stored straight into Kubernetes Secrets, so they never land in a file, your shell history or Helm's release history.
 
