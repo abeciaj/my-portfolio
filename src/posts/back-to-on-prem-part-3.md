@@ -235,7 +235,7 @@ Each of these is enough for its own post — this one stops at "the cluster is m
 
 Three posts, three nodes: picked and justified the hardware, installed Debian by hand once to understand the steps, automated the repeat with Ansible, and now have visibility into what's actually running. That's a complete, working homelab — not a toy cluster, something you can keep building on.
 
-Two standalone posts build on it: [trusted HTTPS with cert-manager](/blog/k8s-cert-manager), and a [self-hosted Git server and CI/CD with Forgejo](/blog/k8s-forgejo).
+Standalone posts build on it: [trusted HTTPS with cert-manager](/blog/k8s-cert-manager), a [self-hosted Git server and CI/CD with Forgejo](/blog/k8s-forgejo), [vulnerability scanning](/blog/k8s-vulnerability-scanning), and [Home Assistant](/blog/k8s-home-assistant).
 
 ---
 
